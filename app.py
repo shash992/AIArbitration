@@ -1,3 +1,4 @@
+st.write("Secrets keys:", list(st.secrets.keys()))
 import streamlit as st
 import pandas as pd
 from google.oauth2.credentials import Credentials
