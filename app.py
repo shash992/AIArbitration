@@ -25,14 +25,18 @@ SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.
 AUTHORIZE_URL = st.secrets["google"]["authorize_url"]
 TOKEN_URL = st.secrets["google"]["token_url"]
 REFRESH_TOKEN_URL = st.secrets["google"]["refresh_token_url"]
-REVOKE_TOKEN_URL = st.secrets["google"]["revoke_token_url"]
 CLIENT_ID = st.secrets["google"]["client_id"]
 CLIENT_SECRET = st.secrets["google"]["client_secret"]
 REDIRECT_URI = st.secrets["google"]["redirect_uri"]
 SCOPE = "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.email openid"
 
 oauth2 = OAuth2Component(
-    CLIENT_ID, CLIENT_SECRET, AUTHORIZE_URL, TOKEN_URL, REFRESH_TOKEN_URL, REVOKE_TOKEN_URL
+    CLIENT_ID,
+    CLIENT_SECRET,
+    AUTHORIZE_URL,
+    TOKEN_URL,
+    REFRESH_TOKEN_URL,
+    revocation_endpoint_auth_method="none"
 )
 
 if 'credentials' not in st.session_state:
