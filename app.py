@@ -34,12 +34,8 @@ def get_google_drive_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            if os.path.exists('credentials.json'):
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    'credentials.json', SCOPES)
-            else:
-                credentials_dict = json.loads(st.secrets["credentials.json"])
-                flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
+            credentials_dict = json.loads(st.secrets["credentials"]["json"])
+            flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -118,10 +114,9 @@ if not st.session_state.authenticated:
     with st.sidebar:
         st.header("Setup Instructions")
         st.markdown("""
-        1. Make sure you have `credentials.json` in the app directory
-        2. Click "Login with Google"
-        3. Authorize the app in your browser
-        4. Select a file to start annotating
+        1. Click "Login with Google"
+        2. Authorize the app in your browser
+        3. Select a file to start annotating
         """)
     
     st.stop()
@@ -269,4 +264,4 @@ with st.sidebar:
             os.remove('token.pickle')
         st.session_state.authenticated = False
         st.session_state.clear()
-        st.rerun() 
+        st.rerun()
