@@ -51,20 +51,21 @@ if 'credentials' not in st.session_state:
 
         if access_token:
             # Construct Credentials object carefully, ensuring it includes refresh_token if available
-            creds = Credentials(
-                token=access_token,
-                refresh_token=token_data.get('refresh_token'),
-                token_uri=TOKEN_URL,
-                client_id=CLIENT_ID,
-                client_secret=CLIENT_SECRET,
-                scopes=SCOPE.split()
-            )
+            creds_data = {
+                'token': access_token,
+                'refresh_token': token_data.get('refresh_token'),
+                'token_uri': TOKEN_URL,
+                'client_id': CLIENT_ID,
+                'client_secret': CLIENT_SECRET,
+                'scopes': SCOPE.split()
+            }
             try:
+                 creds = Credentials.from_authorized_user_info(info=creds_data, scopes=SCOPE.split())
                  st.session_state["credentials"] = creds
                  st.rerun()
             except Exception as e:
                  st.error(f"Error creating credentials: {e}")
-                 st.json(token_data) # Show what we tried to use
+                 st.json(creds_data) # Show what we tried to use
 
         else:
             st.error("OAuth response missing 'access_token'. Full response:")
@@ -146,57 +147,34 @@ st.title("Job Annotation Tool")
 # File selection
 st.header("Step 1: Select File")
 
-try:
-    files = list_drive_files(st.session_state.service, "mimeType='text/csv'")
+# Helper to extract file ID from Google Drive link or ID
+def extract_file_id(url_or_id):
+    import re
+    match = re.search(r'/d/([a-zA-Z0-9_-]+)', url_or_id)
+    if match:
+        return match.group(1)
+    if 'id=' in url_or_id:
+        return url_or_id.split('id=')[1].split('&')[0]
+    return url_or_id.strip()
 
-    if not files:
-        st.warning("No CSV files found in your Google Drive.")
-        st.stop()
+input_link = st.text_input("Paste a Google Drive CSV file link or file ID")
+selected_file_id = extract_file_id(input_link) if input_link else None
 
-    file_options = {f"{file['name']} ({file['id']})": file['id'] for file in files}
-
-    # Set default index for selectbox
-    current_selection_key = None
-    if st.session_state.selected_file_id:
-        for key, val_id in file_options.items():
-            if val_id == st.session_state.selected_file_id:
-                current_selection_key = key
-                break
-    
-    default_index = 0
-    if current_selection_key:
-        try:
-           default_index = list(file_options.keys()).index(current_selection_key)
-        except ValueError:
-            pass # Keep default index 0 if the old file is not found
-
-
-    selected_file_name = st.selectbox(
-        "Select a CSV file to annotate",
-        options=list(file_options.keys()),
-        index=default_index
-    )
-
-    selected_file_id = file_options[selected_file_name]
-
-    if st.button("Load File") or (st.session_state.selected_file_id != selected_file_id):
-        st.session_state.selected_file_id = selected_file_id
-        st.session_state.selected_file = selected_file_name # Store name too if needed
+if st.button("Load File") and selected_file_id:
+    st.session_state.selected_file_id = selected_file_id
+    st.session_state.selected_file = input_link # Store the link or ID
+    try:
         file = download_file_from_drive(selected_file_id, st.session_state.service)
         if file:
             df = pd.read_csv(file)
-
             if 'finalAnnotation' not in df.columns:
                 df['finalAnnotation'] = pd.NA # Use pd.NA for better handling
-
             st.session_state.df = df
             st.session_state.current_index = 0
             st.success("File loaded successfully!")
             st.rerun()
-
-except Exception as e:
-    st.error(f"Error during file selection/loading: {str(e)}")
-    # More specific error handling could be added here
+    except Exception as e:
+        st.error(f"Error during file selection/loading: {str(e)}")
 
 
 # Annotation interface
