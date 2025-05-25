@@ -51,21 +51,20 @@ if 'credentials' not in st.session_state:
 
         if access_token:
             # Construct Credentials object carefully, ensuring it includes refresh_token if available
-            creds_data = {
-                'token': access_token,
-                'refresh_token': token_data.get('refresh_token'),
-                'token_uri': TOKEN_URL,
-                'client_id': CLIENT_ID,
-                'client_secret': CLIENT_SECRET,
-                'scopes': SCOPE.split()
-            }
             try:
-                 creds = Credentials.from_authorized_user_info(info=creds_data, scopes=SCOPE.split())
-                 st.session_state["credentials"] = creds
-                 st.rerun()
+                creds = Credentials(
+                    token=access_token,
+                    refresh_token=token_data.get('refresh_token'),
+                    token_uri=TOKEN_URL,
+                    client_id=CLIENT_ID,
+                    client_secret=CLIENT_SECRET,
+                    scopes=SCOPE.split()
+                )
+                st.session_state["credentials"] = creds
+                st.rerun()
             except Exception as e:
-                 st.error(f"Error creating credentials: {e}")
-                 st.json(creds_data) # Show what we tried to use
+                st.error(f"Error creating credentials: {e}")
+                st.json(token_data)
 
         else:
             st.error("OAuth response missing 'access_token'. Full response:")
