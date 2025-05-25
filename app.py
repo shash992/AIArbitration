@@ -38,7 +38,12 @@ oauth2 = OAuth2Component(
 )
 
 if 'credentials' not in st.session_state:
-    result = oauth2.authorize_button("Log in with Google", REDIRECT_URI, SCOPE)
+    result = oauth2.authorize_button(
+        "Log in with Google",
+        REDIRECT_URI,
+        SCOPE,
+        extras_params={"access_type": "offline", "prompt": "consent"}
+    )
 
     if result:
         token_data = result.get("token", {})
