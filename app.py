@@ -32,11 +32,12 @@ def get_google_drive_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            if not os.path.exists('credentials.json'):
-                st.error("credentials.json not found. Please add your Google OAuth credentials.")
-                st.stop()
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+            if os.path.exists('credentials.json'):
+                flow = InstalledAppFlow.from_client_secrets_file(
+                    'credentials.json', SCOPES)
+            else:
+                credentials_dict = json.loads(st.secrets["credentials.json"])
+                flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
