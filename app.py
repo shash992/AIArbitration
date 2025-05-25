@@ -223,6 +223,15 @@ if st.session_state.df is not None:
 
         st.subheader(f"Job {i + 1} of {len(df)}")
 
+        import streamlit.components.v1 as components
+
+        # Scroll to top on rerun (smooth scrolling)
+        components.html("""
+            <script>
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            </script>
+        """, height=0)
+
         # Display job details (add checks in case columns are missing)
         st.markdown("### Title")
         st.write(df.loc[i, 'TITLE'] if 'TITLE' in df.columns else "N/A")
