@@ -219,21 +219,12 @@ if st.session_state.df is not None:
         def annotate_and_save(annotation_value):
             df.loc[i, 'finalAnnotation'] = annotation_value
             st.session_state.df = df
-            st.session_state.current_index = i + 1 # Move to next potential index
-            try:
-                csv_buffer = io.BytesIO(df.to_csv(index=False).encode())
-                media = MediaIoBaseUpload(
-                    csv_buffer,
-                    mimetype='text/csv',
-                    resumable=True
-                )
-                file = st.session_state.service.files().update(
-                    fileId=selected_file_id,
-                    media_body=media
-                ).execute()
-                st.toast("Progress saved!") # Use toast for less intrusive feedback
-            except Exception as e:
-                st.error(f"Error saving to Google Drive: {str(e)}")
+            st.session_state.current_index = i + 1
+            threading.Thread(
+                target=save_to_drive,
+                args=(df.copy(), selected_file_id, st.session_state.service),
+                daemon=True
+            ).start()
             st.rerun()
 
         # Annotation buttons
@@ -260,6 +251,24 @@ if st.session_state.df is not None:
                 _ = df.loc[next_i]  # preload row
 
         threading.Thread(target=preload_next_job, daemon=True).start()
+
+
+# --- Utility function for saving to Google Drive in a thread ---
+def save_to_drive(df, file_id, service):
+    try:
+        csv_buffer = io.BytesIO(df.to_csv(index=False).encode())
+        media = MediaIoBaseUpload(
+            csv_buffer,
+            mimetype='text/csv',
+            resumable=True
+        )
+        file = service.files().update(
+            fileId=file_id,
+            media_body=media
+        ).execute()
+        st.toast("Progress saved!")  # Less intrusive feedback
+    except Exception as e:
+        st.error(f"Error saving to Google Drive: {str(e)}")
 
 
 # Sidebar
