@@ -36,7 +36,7 @@ def get_google_drive_service():
         else:
             credentials_dict = json.loads(st.secrets["credentials"]["json"])
             flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = flow.run_console()
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
