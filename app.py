@@ -181,19 +181,18 @@ if st.session_state.df is not None:
     st.header("Step 2: Annotate Jobs")
 
     df = st.session_state.df
-    current_index = st.session_state.current_index
     selected_file_id = st.session_state.selected_file_id # Get the ID here
 
     # Find the next unannotated row
     next_unannotated_index = -1
-    for i in range(current_index, len(df)):
+    for i in range(st.session_state.current_index, len(df)):
         if pd.isna(df.loc[i, 'finalAnnotation']):
             next_unannotated_index = i
             break
             
     # If no unannotated found from current_index, check from beginning
     if next_unannotated_index == -1:
-         for i in range(0, current_index):
+         for i in range(0, st.session_state.current_index):
              if pd.isna(df.loc[i, 'finalAnnotation']):
                  next_unannotated_index = i
                  break
@@ -202,25 +201,25 @@ if st.session_state.df is not None:
         st.success("All jobs have been annotated!")
     else:
         st.session_state.current_index = next_unannotated_index
-        current_index = next_unannotated_index # Update for display
+        i = st.session_state.current_index
 
-        st.subheader(f"Job {current_index + 1} of {len(df)}")
+        st.subheader(f"Job {i + 1} of {len(df)}")
 
         # Display job details (add checks in case columns are missing)
         st.markdown("### Title")
-        st.write(df.loc[current_index, 'TITLE'] if 'TITLE' in df.columns else "N/A")
+        st.write(df.loc[i, 'TITLE'] if 'TITLE' in df.columns else "N/A")
 
         st.markdown("### Company")
-        st.write(df.loc[current_index, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
+        st.write(df.loc[i, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
 
         st.markdown("### Description")
-        st.write(df.loc[current_index, 'JOB_DESCRIPTION'] if 'JOB_DESCRIPTION' in df.columns else "N/A")
+        st.write(df.loc[i, 'JOB_DESCRIPTION'] if 'JOB_DESCRIPTION' in df.columns else "N/A")
 
         # --- Annotation Function ---
         def annotate_and_save(annotation_value):
-            df.loc[current_index, 'finalAnnotation'] = annotation_value
+            df.loc[i, 'finalAnnotation'] = annotation_value
             st.session_state.df = df
-            st.session_state.current_index = current_index + 1 # Move to next potential index
+            st.session_state.current_index = i + 1 # Move to next potential index
             try:
                 csv_buffer = io.BytesIO(df.to_csv(index=False).encode())
                 media = MediaIoBaseUpload(
@@ -254,6 +253,13 @@ if st.session_state.df is not None:
         progress = (annotated_count / total_count) if total_count > 0 else 0
         st.progress(progress)
         st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
+
+        def preload_next_job():
+            next_i = i + 1
+            if next_i < len(df) and pd.isna(df.loc[next_i, 'finalAnnotation']):
+                _ = df.loc[next_i]  # preload row
+
+        threading.Thread(target=preload_next_job, daemon=True).start()
 
 
 # Sidebar
