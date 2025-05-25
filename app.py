@@ -1,8 +1,6 @@
 import streamlit as st
 import pandas as pd
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 import io
@@ -12,6 +10,9 @@ import json
 from dotenv import load_dotenv
 import base64
 from pathlib import Path
+from io import BytesIO
+from streamlit_oauth import OAuth2Component
+import threading
 
 # Load environment variables
 load_dotenv()
@@ -21,27 +22,41 @@ st.write("Secrets keys:", list(st.secrets.keys()))
 # Google Drive API setup
 SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.readonly']
 
-def get_google_drive_service():
-    """Get Google Drive service using OAuth."""
-    creds = None
-    # The file token.pickle stores the user's access and refresh tokens
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
-            creds = pickle.load(token)
-    
-    # If there are no (valid) credentials available, let the user log in
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+AUTHORIZE_URL = st.secrets["google"]["authorize_url"]
+TOKEN_URL = st.secrets["google"]["token_url"]
+REFRESH_TOKEN_URL = st.secrets["google"]["refresh_token_url"]
+REVOKE_TOKEN_URL = st.secrets["google"]["revoke_token_url"]
+CLIENT_ID = st.secrets["google"]["client_id"]
+CLIENT_SECRET = st.secrets["google"]["client_secret"]
+REDIRECT_URI = st.secrets["google"]["redirect_uri"]
+SCOPE = "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.email openid"
+
+oauth2 = OAuth2Component(
+    CLIENT_ID, CLIENT_SECRET, AUTHORIZE_URL, TOKEN_URL, REFRESH_TOKEN_URL, REVOKE_TOKEN_URL
+)
+
+if 'credentials' not in st.session_state:
+    result = oauth2.authorize_button("Log in with Google", REDIRECT_URI, SCOPE)
+
+    if result:
+        token_data = result.get("token", {})
+        access_token = token_data.get("access_token")
+
+        if access_token:
+            creds = Credentials(token=access_token)
+            st.session_state["credentials"] = creds
+            st.rerun()
         else:
-            credentials_dict = json.loads(st.secrets["credentials"]["json"])
-            flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
-            creds = flow.run_console()
-        # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
-            pickle.dump(creds, token)
-    
-    return build('drive', 'v3', credentials=creds)
+            st.error("OAuth response missing 'access_token'. Full response:")
+            st.json(result)
+
+if 'credentials' in st.session_state:
+    creds = st.session_state['credentials']
+    service = build('drive', 'v3', credentials=creds)
+    st.session_state.authenticated = True
+    st.session_state.service = service
+else:
+    st.stop()
 
 def list_drive_files(service, query=None):
     """List files in Google Drive."""
@@ -80,46 +95,6 @@ if 'current_index' not in st.session_state:
     st.session_state.current_index = 0
 if 'selected_file' not in st.session_state:
     st.session_state.selected_file = None
-
-# Login screen
-if not st.session_state.authenticated:
-    st.title("Job Annotation Tool")
-    st.header("Login")
-    
-    # Center the login button
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.markdown("""
-        <style>
-        .login-button {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 20px 0;
-        }
-        </style>
-        """, unsafe_allow_html=True)
-        
-        if st.button("Login with Google", type="primary", use_container_width=True):
-            try:
-                # This will trigger the OAuth flow
-                service = get_google_drive_service()
-                st.session_state.authenticated = True
-                st.session_state.service = service
-                st.rerun()
-            except Exception as e:
-                st.error(f"Login failed: {str(e)}")
-    
-    # Instructions
-    with st.sidebar:
-        st.header("Setup Instructions")
-        st.markdown("""
-        1. Click "Login with Google"
-        2. Authorize the app in your browser
-        3. Select a file to start annotating
-        """)
-    
-    st.stop()
 
 # Main app
 st.title("Job Annotation Tool")
