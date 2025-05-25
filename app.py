@@ -114,13 +114,17 @@ if not st.session_state.authenticated:
     
     # Instructions
     with st.sidebar:
-        st.header("Setup Instructions")
+        st.header("How to Use This App")
         st.markdown("""
-        1. Make sure you have `credentials.json` in the app directory
-        2. Click "Login with Google"
-        3. Authorize the app in your browser
-        4. Select a file to start annotating
+        1. Click **Login with Google** and authorize the app.
+        2. Select a CSV file from your Google Drive.
+        3. For each job:
+            - Review the title, company, and description.
+            - Click **AI Job** if the position requires AI skills.
+            - Click **Non-AI Job** if it doesn't.
+        4. Progress is automatically saved after each annotation.
         """)
+        st.info("If you are the app owner, make sure your Google credentials are set up in Streamlit Cloud **Secrets** as `credentials.json`.")
     
     st.stop()
 
@@ -251,16 +255,17 @@ if st.session_state.df is not None:
 
 # Sidebar
 with st.sidebar:
-    st.header("Instructions")
+    st.header("How to Use This App")
     st.markdown("""
-    1. Select a CSV file from your Google Drive
-    2. Click 'Load File' to start
+    1. Click **Login with Google** and authorize the app.
+    2. Select a CSV file from your Google Drive.
     3. For each job:
-        - Review the title, company, and description
-        - Click 'AI Job' if the position requires AI skills
-        - Click 'Non-AI Job' if it doesn't
-    4. Progress is automatically saved after each annotation
+        - Review the title, company, and description.
+        - Click **AI Job** if the position requires AI skills.
+        - Click **Non-AI Job** if it doesn't.
+    4. Progress is automatically saved after each annotation.
     """)
+    st.info("If you are the app owner, make sure your Google credentials are set up in Streamlit Cloud **Secrets** as `credentials.json`.")
     
     if st.button("Logout"):
         if os.path.exists('token.pickle'):
