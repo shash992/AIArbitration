@@ -1,4 +1,3 @@
-st.write("Secrets keys:", list(st.secrets.keys()))
 import streamlit as st
 import pandas as pd
 from google.oauth2.credentials import Credentials
@@ -16,6 +15,8 @@ from pathlib import Path
 
 # Load environment variables
 load_dotenv()
+
+st.write("Secrets keys:", list(st.secrets.keys()))
 
 # Google Drive API setup
 SCOPES = ['https://www.googleapis.com/auth/drive.file', 'https://www.googleapis.com/auth/drive.readonly']
