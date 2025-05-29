@@ -241,18 +241,6 @@ if st.session_state.df is not None:
 
         description = df.loc[i, 'cleaned_jd'] if 'cleaned_jd' in df.columns else "N/A"
 
-        st.markdown("""
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-                <h4 style="margin: 0;">Description</h4>
-                <button onclick="navigator.clipboard.writeText(document.getElementById('desc-text').innerText)"
-                        style="padding: 5px 10px; font-size: 16px; background: none; border: none; cursor: pointer;"
-                        title="Copy to clipboard">
-                    📋
-                </button>
-            </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown(f"<div id='desc-text' style='white-space: pre-wrap;'>{description}</div>", unsafe_allow_html=True)
 
         # Display RA label metadata
         if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
