@@ -240,7 +240,8 @@ if st.session_state.df is not None:
         st.write(df.loc[i, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
 
         description = df.loc[i, 'cleaned_jd'] if 'cleaned_jd' in df.columns else "N/A"
-
+        st.markdown("### Description")
+        st.write(description)
 
         # Display RA label metadata
         if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
