@@ -240,7 +240,7 @@ if st.session_state.df is not None:
         st.write(df.loc[i, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
 
         st.markdown("### Description")
-        st.write(df.loc[i, 'JOB_DESCRIPTION'] if 'JOB_DESCRIPTION' in df.columns else "N/A")
+        st.write(df.loc[i, 'cleaned_jd'] if 'Jcleaned_jd' in df.columns else "N/A")
 
         # --- Annotation Function ---
         def annotate_and_save(annotation_value):
