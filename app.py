@@ -241,7 +241,7 @@ if st.session_state.df is not None:
 
         description = df.loc[i, 'cleaned_jd'] if 'cleaned_jd' in df.columns else "N/A"
 
-        components.html(f"""
+        st.markdown("""
             <div style="display: flex; align-items: center; justify-content: space-between;">
                 <h4 style="margin: 0;">Description</h4>
                 <button onclick="navigator.clipboard.writeText(document.getElementById('desc-text').innerText)"
@@ -250,10 +250,9 @@ if st.session_state.df is not None:
                     📋
                 </button>
             </div>
-            <div id="desc-text" style="white-space: pre-wrap; margin-top: 5px; border: 1px solid #ddd; padding: 10px;">
-                {description}
-            </div>
-        """, height=200)
+        """, unsafe_allow_html=True)
+
+        st.markdown(f"<div id='desc-text' style='white-space: pre-wrap;'>{description}</div>", unsafe_allow_html=True)
 
         # Display RA label metadata
         if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
