@@ -242,6 +242,10 @@ if st.session_state.df is not None:
         description = df.loc[i, 'cleaned_jd'] if 'cleaned_jd' in df.columns else "N/A"
         st.markdown("### Description")
         st.write(description)
+        # --- Copy Description Button ---
+        if st.button("📋 Copy Description", key="copy_desc"):
+            st.code(description, language=None)
+            st.toast("Description copied! (Use Ctrl+C to copy from box)")
 
         # Display RA label metadata
         if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
