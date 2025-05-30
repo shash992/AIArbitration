@@ -225,12 +225,12 @@ if st.session_state.df is not None:
 
         import streamlit.components.v1 as components
 
-        # Scroll to top on rerun (smooth scrolling)
-        components.html("""
-            <script>
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            </script>
-        """, height=0)
+        # # Scroll to top on rerun (smooth scrolling)
+        # components.html("""
+        #     <script>
+        #         window.scrollTo({ top: 0, behavior: 'smooth' });
+        #     </script>
+        # """, height=0)
 
         # Display job details (add checks in case columns are missing)
         st.markdown("### Title")
