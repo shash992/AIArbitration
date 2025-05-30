@@ -242,10 +242,15 @@ if st.session_state.df is not None:
         description = df.loc[i, 'cleaned_jd'] if 'cleaned_jd' in df.columns else "N/A"
         st.markdown("### Description")
         st.write(description)
-        # --- Copy Description Button ---
-        if st.button("📋 Copy Description", key="copy_desc"):
-            st.code(description, language=None)
-            st.toast("Description copied! (Use Ctrl+C to copy from box)")
+        # --- Copy Description Button (HTML/JS clipboard) ---
+        components.html(f"""
+            <button onclick="navigator.clipboard.writeText(`{description}`); 
+                             this.innerText='✅ Copied!'; 
+                             setTimeout(() => this.innerText='📋 Copy Description', 2000);"
+                    style="margin-bottom: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer;">
+                📋 Copy Description
+            </button>
+        """, height=40)
 
         # Display RA label metadata
         if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
