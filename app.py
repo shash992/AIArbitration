@@ -231,6 +231,11 @@ if st.session_state.df is not None:
         #         window.scrollTo({ top: 0, behavior: 'smooth' });
         #     </script>
         # """, height=0)
+        st.markdown("""
+    <script>
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    </script>
+        """, unsafe_allow_html=True)
 
         # Display job details (add checks in case columns are missing)
         st.markdown("### Title")
