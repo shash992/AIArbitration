@@ -276,6 +276,11 @@ if st.session_state.df is not None:
             ).start()
             st.rerun()
 
+        # Previous button (move above annotation buttons)
+        if i > 0 and st.button("⬅️ Previous", use_container_width=True):
+            st.session_state.current_index = i - 1
+            st.rerun()
+
         # Annotation buttons
         col1, col2 = st.columns(2)
 
@@ -286,12 +291,6 @@ if st.session_state.df is not None:
         with col2:
             if st.button("Non-AI Job", use_container_width=True):
                 annotate_and_save(0)
-
-        
-        # Previous button
-        if i > 0 and st.button("⬅️ Previous", use_container_width=True):
-            st.session_state.current_index = i - 1
-            st.rerun()
 
         # Progress bar
         annotated_count = df['finalAnnotation'].notna().sum()
