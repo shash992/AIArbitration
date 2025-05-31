@@ -231,11 +231,7 @@ if st.session_state.df is not None:
         #         window.scrollTo({ top: 0, behavior: 'smooth' });
         #     </script>
         # """, height=0)
-        st.markdown("""
-    <script>
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    </script>
-        """, unsafe_allow_html=True)
+        
 
         # Display job details (add checks in case columns are missing)
         st.markdown("### Title")
@@ -269,10 +265,10 @@ if st.session_state.df is not None:
             st.write(f"**{ra2_name}**: {ra2_label}")
 
         # --- Annotation Function ---
-        def annotate_and_save(annotation_value, next_index):
+        def annotate_and_save(annotation_value):
             df.loc[i, 'finalAnnotation'] = annotation_value
             st.session_state.df = df
-            st.session_state.current_index = next_index
+            st.session_state.current_index = i + 1
             threading.Thread(
                 target=save_to_drive,
                 args=(df.copy(), selected_file_id, st.session_state.service),
@@ -285,16 +281,11 @@ if st.session_state.df is not None:
 
         with col1:
             if st.button("AI Job", type="primary", use_container_width=True):
-                annotate_and_save(1, i + 1)
+                annotate_and_save(1)
 
         with col2:
             if st.button("Non-AI Job", use_container_width=True):
-                annotate_and_save(0, i + 1)
-
-        # Previous button
-        if i > 0 and st.button("⬅️ Previous", use_container_width=True):
-            st.session_state.current_index = i - 1
-            st.rerun()
+                annotate_and_save(0)
 
         # Progress bar
         annotated_count = df['finalAnnotation'].notna().sum()
