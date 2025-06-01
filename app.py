@@ -337,12 +337,11 @@ if st.session_state.df is not None:
         annotated_count = df['finalAnnotation'].notna().sum()
         total_count = len(df)
         progress = (annotated_count / total_count) if total_count > 0 else 0
-        st.progress(progress)
-        st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
-
         if st.session_state.annotation_times:
             avg_time = sum(st.session_state.annotation_times) / len(st.session_state.annotation_times)
             st.write(f"⏱ Average time per annotation: {avg_time:.2f} seconds")
+        st.progress(progress)
+        st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
 
         def preload_next_job():
             next_i = i + 1
