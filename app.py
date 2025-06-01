@@ -161,10 +161,7 @@ if 'selected_file_id' not in st.session_state:
 # Main app
 st.title("Job Annotation Tool")
 
-# File selection
-st.header("Step 1: Select File")
-
-# Helper to extract file ID from Google Drive link or ID
+# File selection helper to extract file ID from Google Drive link or ID
 def extract_file_id(url_or_id):
     import re
     match = re.search(r'/d/([a-zA-Z0-9_-]+)', url_or_id)
@@ -174,24 +171,47 @@ def extract_file_id(url_or_id):
         return url_or_id.split('id=')[1].split('&')[0]
     return url_or_id.strip()
 
-input_link = st.text_input("Paste a Google Drive CSV file link or file ID")
-selected_file_id = extract_file_id(input_link) if input_link else None
+# Sidebar
+with st.sidebar:
+    st.header("Instructions")
+    st.markdown("""
+    1.  Log in with Google (if not already).
+    2.  Select a CSV file from your Google Drive.
+    3.  Click 'Load File' to start.
+    4.  For each job:
+        * Review the title, company, and description.
+        * Click 'AI Job' if the position requires AI skills.
+        * Click 'Non-AI Job' if it doesn't.
+    5.  Progress is automatically saved after each annotation.
+    """)
 
-if st.button("Load File") and selected_file_id:
-    st.session_state.selected_file_id = selected_file_id
-    st.session_state.selected_file = input_link # Store the link or ID
-    try:
-        file = download_file_from_drive(selected_file_id, st.session_state.service)
-        if file:
-            df = pd.read_csv(file)
-            if 'finalAnnotation' not in df.columns:
-                df['finalAnnotation'] = pd.NA # Use pd.NA for better handling
-            st.session_state.df = df
-            st.session_state.current_index = 0
-            st.success("File loaded successfully!")
+    st.markdown("### Load File")
+    input_link = st.text_input("Paste a Google Drive CSV file link or file ID")
+    selected_file_id = extract_file_id(input_link) if input_link else None
+
+    if st.button("Load File") and selected_file_id:
+        st.session_state.selected_file_id = selected_file_id
+        st.session_state.selected_file = input_link # Store the link or ID
+        try:
+            file = download_file_from_drive(selected_file_id, st.session_state.service)
+            if file:
+                df = pd.read_csv(file)
+                if 'finalAnnotation' not in df.columns:
+                    df['finalAnnotation'] = pd.NA # Use pd.NA for better handling
+                st.session_state.df = df
+                st.session_state.current_index = 0
+                st.success("File loaded successfully!")
+                st.rerun()
+        except Exception as e:
+            st.error(f"Error during file selection/loading: {str(e)}")
+
+    if 'credentials' in st.session_state:
+        if st.button("Logout"):
+            # No token.pickle used, just clear session state
+            keys_to_clear = list(st.session_state.keys())
+            for key in keys_to_clear:
+                del st.session_state[key]
             st.rerun()
-    except Exception as e:
-        st.error(f"Error during file selection/loading: {str(e)}")
 
 
 # Annotation interface
@@ -301,26 +321,3 @@ if st.session_state.df is not None:
                 _ = df.loc[next_i]  # preload row
 
         threading.Thread(target=preload_next_job, daemon=True).start()
-
-
-# Sidebar
-with st.sidebar:
-    st.header("Instructions")
-    st.markdown("""
-    1.  Log in with Google (if not already).
-    2.  Select a CSV file from your Google Drive.
-    3.  Click 'Load File' to start.
-    4.  For each job:
-        * Review the title, company, and description.
-        * Click 'AI Job' if the position requires AI skills.
-        * Click 'Non-AI Job' if it doesn't.
-    5.  Progress is automatically saved after each annotation.
-    """)
-
-    if 'credentials' in st.session_state:
-        if st.button("Logout"):
-            # No token.pickle used, just clear session state
-            keys_to_clear = list(st.session_state.keys())
-            for key in keys_to_clear:
-                del st.session_state[key]
-            st.rerun()
