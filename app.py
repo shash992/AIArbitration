@@ -216,7 +216,7 @@ with st.sidebar:
 
 # Annotation interface
 if st.session_state.df is not None:
-    st.header("Step 2: Annotate Jobs")
+    st.header("Annotate Jobs")
 
     df = st.session_state.df
     selected_file_id = st.session_state.selected_file_id # Get the ID here
