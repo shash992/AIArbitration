@@ -189,7 +189,7 @@ with st.sidebar:
     input_link = st.text_input("Paste a Google Drive CSV file link or file ID")
     selected_file_id = extract_file_id(input_link) if input_link else None
 
-    if st.button("Load File") and selected_file_id:
+    if st.button("Load File", type="primary") and selected_file_id:
         st.session_state.selected_file_id = selected_file_id
         st.session_state.selected_file = input_link # Store the link or ID
         try:
