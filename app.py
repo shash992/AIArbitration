@@ -157,6 +157,10 @@ if 'selected_file' not in st.session_state:
     st.session_state.selected_file = None
 if 'selected_file_id' not in st.session_state:
     st.session_state.selected_file_id = None
+if 'annotation_times' not in st.session_state:
+    st.session_state.annotation_times = []
+if 'last_annotation_time' not in st.session_state:
+    st.session_state.last_annotation_time = None
 
 # Main app
 st.title("Job Annotation Tool")
@@ -300,6 +304,13 @@ if st.session_state.df is not None:
 
         # --- Annotation Function ---
         def annotate_and_save(annotation_value):
+            import time
+            now = time.time()
+            if st.session_state.last_annotation_time is not None:
+                elapsed = now - st.session_state.last_annotation_time
+                st.session_state.annotation_times.append(elapsed)
+            st.session_state.last_annotation_time = now
+
             df.loc[i, 'finalAnnotation'] = annotation_value
             st.session_state.df = df
             st.session_state.current_index = i + 1
@@ -328,6 +339,10 @@ if st.session_state.df is not None:
         progress = (annotated_count / total_count) if total_count > 0 else 0
         st.progress(progress)
         st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
+
+        if st.session_state.annotation_times:
+            avg_time = sum(st.session_state.annotation_times) / len(st.session_state.annotation_times)
+            st.write(f"⏱ Average time per annotation: {avg_time:.2f} seconds")
 
         def preload_next_job():
             next_i = i + 1
