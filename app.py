@@ -206,12 +206,26 @@ with st.sidebar:
             st.error(f"Error during file selection/loading: {str(e)}")
 
     if 'credentials' in st.session_state:
+        st.markdown(
+            """
+            <style>
+                .logout-button {
+                    position: fixed;
+                    bottom: 10px;
+                    left: 10px;
+                    width: calc(20% - 20px);
+                }
+            </style>
+            <div class="logout-button">
+            """,
+            unsafe_allow_html=True
+        )
         if st.button("Logout"):
-            # No token.pickle used, just clear session state
             keys_to_clear = list(st.session_state.keys())
             for key in keys_to_clear:
                 del st.session_state[key]
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # Annotation interface
