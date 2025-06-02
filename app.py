@@ -339,7 +339,8 @@ if st.session_state.df is not None:
         progress = (annotated_count / total_count) if total_count > 0 else 0
         if st.session_state.annotation_times:
             avg_time = sum(st.session_state.annotation_times) / len(st.session_state.annotation_times)
-            st.write(f"⏱ Average time per annotation: {avg_time:.2f} seconds")
+            minutes, seconds = divmod(avg_time, 60)
+            st.write(f"⏱ Average time per annotation: {int(minutes)} min {int(seconds)} sec")
         st.progress(progress)
         st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
 
