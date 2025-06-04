@@ -1,4 +1,4 @@
-st.write("Secrets keys:", list(st.secrets.keys()))
+
 # Job Annotation Tool
 
 A Streamlit application for annotating job postings as AI or non-AI jobs, with Google Drive integration for file storage.
