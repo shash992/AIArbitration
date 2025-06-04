@@ -283,13 +283,17 @@ if st.session_state.df is not None:
         st.write(description)
         # --- Copy Description Button (HTML/JS clipboard) ---
         components.html(f"""
-            <button onclick="navigator.clipboard.writeText(`{description}`); 
-                             this.innerText='✅ Copied!'; 
-                             setTimeout(() => this.innerText='📋 Copy Description', 2000);"
-                    style="margin-bottom: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer;">
+            <div id="desc-to-copy" style="display:none">{description}</div>
+            <button onclick="
+                const text = document.getElementById('desc-to-copy').innerText;
+                navigator.clipboard.writeText(text);
+                this.innerText = '✅ Copied!';
+                setTimeout(() => this.innerText = '📋 Copy Description', 2000);
+            "
+            style="margin-bottom: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer;">
                 📋 Copy Description
             </button>
-        """, height=40)
+        """, height=50)
 
         # Display RA label metadata
         if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
