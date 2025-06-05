@@ -315,7 +315,7 @@ if st.session_state.df is not None:
                 st.session_state.annotation_times.append(elapsed)
             st.session_state.last_annotation_time = now
 
-            df.loc[i, 'finalAnnotation'] = annotation_value
+            df.loc[i, 'Annotation'] = annotation_value
             st.session_state.df = df
             st.session_state.current_index = i + 1
             threading.Thread(
