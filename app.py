@@ -263,49 +263,6 @@ if st.session_state.df is not None:
 
         import streamlit.components.v1 as components
 
-        # # Scroll to top on rerun (smooth scrolling)
-        # components.html("""
-        #     <script>
-        #         window.scrollTo({ top: 0, behavior: 'smooth' });
-        #     </script>
-        # """, height=0)
-        
-
-        # Display job details (add checks in case columns are missing)
-        st.markdown("### Title")
-        st.write(df.loc[i, 'TITLE'] if 'TITLE' in df.columns else "N/A")
-
-        st.markdown("### Company")
-        st.write(df.loc[i, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
-
-        description = df.loc[i, 'JOB_DESCRIPTION'] if 'JOB_DESCRIPTION' in df.columns else "N/A"
-        st.markdown("### Description")
-        st.write(description)
-        # --- Copy Description Button (HTML/JS clipboard) ---
-        components.html(f"""
-            <div id="desc-to-copy" style="display:none">{description}</div>
-            <button onclick="
-                const text = document.getElementById('desc-to-copy').innerText;
-                navigator.clipboard.writeText(text);
-                this.innerText = '✅ Copied!';
-                setTimeout(() => this.innerText = '📋 Copy Description', 2000);
-            "
-            style="margin-bottom: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer;">
-                📋 Copy Description
-            </button>
-        """, height=50)
-
-        # # Display RA label metadata
-        # if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
-        #     ra1_label = df.loc[i, 'RA_Label1']
-        #     ra1_name = df.loc[i, 'RA1_name']
-        #     st.write(f"**{ra1_name}**: {ra1_label}")
-
-        # if 'RA2_name' in df.columns and 'RA_Label2' in df.columns:
-        #     ra2_label = df.loc[i, 'RA_Label2']
-        #     ra2_name = df.loc[i, 'RA2_name']
-        #     st.write(f"**{ra2_name}**: {ra2_label}")
-
         # --- Annotation Function ---
         def annotate_and_save(annotation_value):
             import time
@@ -325,28 +282,52 @@ if st.session_state.df is not None:
             ).start()
             st.rerun()
 
+        # Two-column layout for job details and annotation UI
+        col_left, col_right = st.columns([2, 1])
 
-        # Annotation buttons
-        col1, col2 = st.columns(2)
+        description = df.loc[i, 'JOB_DESCRIPTION'] if 'JOB_DESCRIPTION' in df.columns else "N/A"
 
-        with col1:
+        with col_left:
+            st.markdown("### Title")
+            st.write(df.loc[i, 'TITLE'] if 'TITLE' in df.columns else "N/A")
+
+            st.markdown("### Company")
+            st.write(df.loc[i, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
+
+            st.markdown("### Description")
+            st.write(description)
+
+            components.html(f"""
+                <div id="desc-to-copy" style="display:none">{description}</div>
+                <button onclick="
+                    const text = document.getElementById('desc-to-copy').innerText;
+                    navigator.clipboard.writeText(text);
+                    this.innerText = '✅ Copied!';
+                    setTimeout(() => this.innerText = '📋 Copy Description', 2000);
+                "
+                style="margin-bottom: 10px; padding: 6px 12px; font-size: 14px; cursor: pointer;">
+                    📋 Copy Description
+                </button>
+            """, height=50)
+
+        with col_right:
+            st.markdown("### Annotate")
             if st.button("AI Job", type="primary", use_container_width=True):
                 annotate_and_save(1)
 
-        with col2:
             if st.button("Non-AI Job", use_container_width=True):
                 annotate_and_save(0)
 
-        # Progress bar
-        annotated_count = df['Annotation'].notna().sum()
-        total_count = len(df)
-        progress = (annotated_count / total_count) if total_count > 0 else 0
-        if st.session_state.annotation_times:
-            avg_time = sum(st.session_state.annotation_times) / len(st.session_state.annotation_times)
-            minutes, seconds = divmod(avg_time, 60)
-            st.write(f"⏱ Average time per annotation: {int(minutes)} min {int(seconds)} sec")
-        st.progress(progress)
-        st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
+            annotated_count = df['Annotation'].notna().sum()
+            total_count = len(df)
+            progress = (annotated_count / total_count) if total_count > 0 else 0
+            if st.session_state.annotation_times:
+                avg_time = sum(st.session_state.annotation_times) / len(st.session_state.annotation_times)
+                minutes, seconds = divmod(avg_time, 60)
+                st.write(f"⏱ Avg: {int(minutes)}m {int(seconds)}s")
+
+            st.progress(progress)
+            st.write(f"Progress: {annotated_count} / {total_count} ({progress*100:.1f}%)")
 
         def preload_next_job():
             next_i = i + 1
