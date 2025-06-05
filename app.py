@@ -278,7 +278,7 @@ if st.session_state.df is not None:
         st.markdown("### Company")
         st.write(df.loc[i, 'COMPANY_NAME'] if 'COMPANY_NAME' in df.columns else "N/A")
 
-        description = df.loc[i, 'cleaned_jd'] if 'cleaned_jd' in df.columns else "N/A"
+        description = df.loc[i, 'JOB_DESCRIPTION'] if 'JOB_DESCRIPTION' in df.columns else "N/A"
         st.markdown("### Description")
         st.write(description)
         # --- Copy Description Button (HTML/JS clipboard) ---
@@ -295,16 +295,16 @@ if st.session_state.df is not None:
             </button>
         """, height=50)
 
-        # Display RA label metadata
-        if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
-            ra1_label = df.loc[i, 'RA_Label1']
-            ra1_name = df.loc[i, 'RA1_name']
-            st.write(f"**{ra1_name}**: {ra1_label}")
+        # # Display RA label metadata
+        # if 'RA1_name' in df.columns and 'RA_Label1' in df.columns:
+        #     ra1_label = df.loc[i, 'RA_Label1']
+        #     ra1_name = df.loc[i, 'RA1_name']
+        #     st.write(f"**{ra1_name}**: {ra1_label}")
 
-        if 'RA2_name' in df.columns and 'RA_Label2' in df.columns:
-            ra2_label = df.loc[i, 'RA_Label2']
-            ra2_name = df.loc[i, 'RA2_name']
-            st.write(f"**{ra2_name}**: {ra2_label}")
+        # if 'RA2_name' in df.columns and 'RA_Label2' in df.columns:
+        #     ra2_label = df.loc[i, 'RA_Label2']
+        #     ra2_name = df.loc[i, 'RA2_name']
+        #     st.write(f"**{ra2_name}**: {ra2_label}")
 
         # --- Annotation Function ---
         def annotate_and_save(annotation_value):
