@@ -200,8 +200,8 @@ with st.sidebar:
             file = download_file_from_drive(selected_file_id, st.session_state.service)
             if file:
                 df = pd.read_csv(file)
-                if 'finalAnnotation' not in df.columns:
-                    df['finalAnnotation'] = pd.NA # Use pd.NA for better handling
+                if 'Annotation' not in df.columns:
+                    df['Annotation'] = pd.NA # Use pd.NA for better handling
                 st.session_state.df = df
                 st.session_state.current_index = 0
                 st.success("File loaded successfully!")
@@ -242,14 +242,14 @@ if st.session_state.df is not None:
     # Find the next unannotated row
     next_unannotated_index = -1
     for i in range(st.session_state.current_index, len(df)):
-        if pd.isna(df.loc[i, 'finalAnnotation']):
+        if pd.isna(df.loc[i, 'Annotation']):
             next_unannotated_index = i
             break
             
     # If no unannotated found from current_index, check from beginning
     if next_unannotated_index == -1:
          for i in range(0, st.session_state.current_index):
-             if pd.isna(df.loc[i, 'finalAnnotation']):
+             if pd.isna(df.loc[i, 'Annotation']):
                  next_unannotated_index = i
                  break
 
@@ -338,7 +338,7 @@ if st.session_state.df is not None:
                 annotate_and_save(0)
 
         # Progress bar
-        annotated_count = df['finalAnnotation'].notna().sum()
+        annotated_count = df['Annotation'].notna().sum()
         total_count = len(df)
         progress = (annotated_count / total_count) if total_count > 0 else 0
         if st.session_state.annotation_times:
@@ -350,7 +350,7 @@ if st.session_state.df is not None:
 
         def preload_next_job():
             next_i = i + 1
-            if next_i < len(df) and pd.isna(df.loc[next_i, 'finalAnnotation']):
+            if next_i < len(df) and pd.isna(df.loc[next_i, 'Annotation']):
                 _ = df.loc[next_i]  # preload row
 
         threading.Thread(target=preload_next_job, daemon=True).start()
