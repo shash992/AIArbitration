@@ -234,7 +234,15 @@ with st.sidebar:
 
 # Annotation interface
 if st.session_state.df is not None:
-    st.header(f"Annotating: {st.session_state.selected_file or 'Unknown File'}")
+    file_display_name = None
+    if st.session_state.selected_file_id and 'service' in st.session_state:
+        try:
+            file_metadata = st.session_state.service.files().get(fileId=st.session_state.selected_file_id, fields="name").execute()
+            file_display_name = file_metadata.get("name")
+        except Exception as e:
+            file_display_name = st.session_state.selected_file_id  # fallback to ID
+
+    st.header(f"Annotating: {file_display_name or 'Unknown File'}")
 
     df = st.session_state.df
     selected_file_id = st.session_state.selected_file_id # Get the ID here
