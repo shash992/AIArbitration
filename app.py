@@ -13,7 +13,6 @@ from pathlib import Path
 from io import BytesIO
 from streamlit_oauth import OAuth2Component
 import threading
-import streamlit_js_eval
 
 # Load environment variables
 load_dotenv()
@@ -319,40 +318,6 @@ if st.session_state.df is not None:
 
             if st.button("Non-AI Job", use_container_width=True):
                 annotate_and_save(0)
-
-            # --- Arrow Buttons for Navigation ---
-            import streamlit.components.v1 as components
-            components.html("""
-                <style>
-                .arrow-btn {
-                    font-size: 24px;
-                    padding: 8px 16px;
-                    margin: 10px 10px 0 0;
-                    border: none;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    transition: transform 0.1s ease-in-out;
-                }
-
-                .arrow-btn:active {
-                    transform: scale(1.1);
-                    background-color: #dcdcdc;
-                }
-                </style>
-                <button class="arrow-btn" onclick="window.dispatchEvent(new KeyboardEvent('keydown', {'key': 'ArrowLeft'}))">
-                    ⬅️
-                </button>
-                <button class="arrow-btn" onclick="window.dispatchEvent(new KeyboardEvent('keydown', {'key': 'ArrowRight'}))">
-                    ➡️
-                </button>
-            """, height=60)
-
-            key_event = streamlit_js_eval.streamlit_js_eval(js_expressions="event.key", key="key_listener")
-
-            if key_event == "ArrowLeft":
-                annotate_and_save(0)
-            elif key_event == "ArrowRight":
-                annotate_and_save(1)
 
             annotated_count = df['Annotation'].notna().sum()
             total_count = len(df)
