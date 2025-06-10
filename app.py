@@ -13,6 +13,7 @@ from pathlib import Path
 from io import BytesIO
 from streamlit_oauth import OAuth2Component
 import threading
+import streamlit_js_eval
 
 # Load environment variables
 load_dotenv()
@@ -345,6 +346,13 @@ if st.session_state.df is not None:
                     ➡️
                 </button>
             """, height=60)
+
+            key_event = streamlit_js_eval.streamlit_js_eval(js_expressions="event.key", key="key_listener")
+
+            if key_event == "ArrowLeft":
+                annotate_and_save(0)
+            elif key_event == "ArrowRight":
+                annotate_and_save(1)
 
             annotated_count = df['Annotation'].notna().sum()
             total_count = len(df)
